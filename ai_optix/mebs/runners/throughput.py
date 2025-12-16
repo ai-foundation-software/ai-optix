@@ -3,6 +3,8 @@ from .base import BenchmarkRunner
 from ..core.timer import BenchmarkTimer
 from ..core.stats import BenchmarkStats
 
+from ...api import BenchmarkConfig
+
 class ThroughputConfig(BenchmarkConfig):
     pass
 

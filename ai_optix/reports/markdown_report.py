@@ -6,8 +6,7 @@ def generate_markdown_report(issues: List[Issue], metrics_summary: dict) -> str:
     
     # Extract core metrics
     duration = metrics_summary.get('duration', 0.0)
-    avg_cpu = metrics_summary.get('avg_cpu', 0.0)
-    s_metrics = metrics_summary.get('system_metrics') # This would need to be passed down or extracted from stats
+
     
     # Just a placeholder for extracting from the dict passed in. 
     # In reality, we might pass the full BenchmarkStats object or a unified dict.

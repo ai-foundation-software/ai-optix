@@ -1,5 +1,5 @@
-use pyo3::prelude::*;
 use numpy::PyReadonlyArrayDyn;
+use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[pyclass]
@@ -33,20 +33,22 @@ impl Optimizer {
     /// Accepts a 2D numpy array (flattened or not) and treats it as Square Matrix of side `rows`
     /// Current demo assumes input `data` is A, and we multiply A * A for demo purposes.
     pub fn optimize_matrix(
-        &self, 
-        _py: Python, 
-        rows: usize, 
-        cols: usize, 
-        data: PyReadonlyArrayDyn<f32>
+        &self,
+        _py: Python,
+        rows: usize,
+        cols: usize,
+        data: PyReadonlyArrayDyn<f32>,
     ) -> PyResult<OptimizationResult> {
         let start = std::time::Instant::now();
-        
+
         let a_slice = data.as_slice()?;
         let len = a_slice.len();
-        
+
         if len != rows * cols {
             return Err(pyo3::exceptions::PyValueError::new_err(format!(
-                "Data size {} does not match rows*cols {}", len, rows * cols
+                "Data size {} does not match rows*cols {}",
+                len,
+                rows * cols
             )));
         }
 
@@ -54,7 +56,7 @@ impl Optimizer {
         // For A * A where A is rows*cols (assuming square for simplicity or matching dim)
         // If Rows != Cols this logic needs update. Assuming Rows=Cols for demo.
         let mut c = vec![0.0f32; rows * cols];
-        
+
         unsafe {
             mat_mul_cpu(
                 a_slice.as_ptr(),
@@ -62,7 +64,7 @@ impl Optimizer {
                 c.as_mut_ptr(),
                 rows as i32,
                 cols as i32,
-                cols as i32 // K = cols
+                cols as i32, // K = cols
             );
         }
 
@@ -77,13 +79,14 @@ impl Optimizer {
 
     /// Suggests best backend based on data size
     pub fn suggest_backend(&self, size_bytes: u64) -> String {
-        if size_bytes > 1024 * 1024 * 100 { // 100 MB
+        if size_bytes > 1024 * 1024 * 100 {
+            // 100 MB
             "gpu".to_string()
         } else {
             "cpu".to_string()
         }
     }
-    
+
     pub fn __repr__(&self) -> String {
         format!("<Optimizer name='{}'>", self.name)
     }

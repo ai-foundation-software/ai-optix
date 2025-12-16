@@ -17,7 +17,7 @@ dependencies = [
     "psutil>=5.9.0",
     "torch>=2.0.0",
     "pydantic>=2.0.0",
-    "nvidia-ml-py>=12.535.133",
+    "nvidia-ml-py>=12.535.133; sys_platform == 'linux'",
     "numpy>=1.21.0",
 ]
 

@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Union
 import numpy as np
 from .._core import Optimizer as RustOptimizer
 from .._core import OptimizationResult

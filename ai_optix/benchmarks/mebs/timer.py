@@ -1,16 +1,13 @@
 import time
-import timeit
-from typing import List, Optional
+from typing import List
 try:
     import torch
     HAS_TORCH = True
 except ImportError:
     HAS_TORCH = False
 import numpy as np
-import numpy as np
 from contextlib import contextmanager
 
-from ai_optix.benchmarks.mebs.device_manager import get_device_manager
 
 class BenchmarkTimer:
     """

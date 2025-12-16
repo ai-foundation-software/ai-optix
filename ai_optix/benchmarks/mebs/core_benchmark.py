@@ -1,11 +1,10 @@
-import torch
-import logging
 import numpy as np
 from ai_optix.benchmarks.mebs import BenchmarkRunner, BenchmarkConfig, get_device_manager
 
 # Try importing the core extension
 try:
-    from ai_optix._core import Optimizer, OptimizationResult
+    from ai_optix._core import Optimizer
+    # OptimizationResult is used in types if checked, but here likely unused
     CORE_AVAILABLE = True
 except ImportError:
     CORE_AVAILABLE = False

@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 
-mod profiler;
-mod optimizer;
 mod loader;
+mod optimizer;
+mod profiler;
 
 use loader::DataLoader;
 

@@ -30,6 +30,12 @@ xcode-select --install
 brew install cmake
 ```
 
+**Windows:**
+- Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (C++ Desktop Development workload).
+- Install [CMake](https://cmake.org/download/).
+- Install [Rust via rustup-init.exe](https://rustup.rs/).
+
+
 ## Setup Instructions
 
 ### 1. Clone the Repository
@@ -40,25 +46,41 @@ cd ai-optix
 
 ### 2. Create Virtual Environment
 It is critical to rely on a virtual environment to avoid conflicts.
+
+**Linux/macOS:**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
 ### 3. Install Dependencies
 ```bash
 pip install --upgrade pip
 pip install maturin patchelf
-pip install -r requirements.txt  # If available, or minimal deps:
-pip install torch numpy
+# Install project in editable mode (builds Rust extension automatically)
+pip install -e .
 ```
 
-### 4. Build and Install
-Compile the Rust/C++ extensions and install the package in editable mode:
+### 4. Build Options
+The `pip install -e .` command above automatically handles the build. 
+However, for manual control or debugging of the Rust extension:
+
+**Debug Build (Fast):**
+```bash
+maturin develop
+```
+
+**Release Build (Optimized):**
 ```bash
 maturin develop --release
 ```
-*Note: The `--release` flag enables high-performance optimizations. Omit it for faster incremental builds during debugging.*
+
 
 ## GPU Support
 

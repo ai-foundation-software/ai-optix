@@ -1,5 +1,3 @@
-from .core.device import DeviceProbe
-from .core.stats import BenchmarkStats
 from .runners.base import BenchmarkConfig
 from .runners.latency import LatencyRunner
 

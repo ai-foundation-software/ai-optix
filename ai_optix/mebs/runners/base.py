@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 from ..core.device import DeviceProbe, DeviceInfo
 from ..core.stats import BenchmarkStats
+
+from ...profiler.gpu import GpuProfiler
 
 class BenchmarkConfig:
     def __init__(
@@ -18,7 +20,7 @@ class BenchmarkConfig:
         self.device = device
         self.flop_count = flop_count
 
-from ...profiler.gpu import GpuProfiler
+
 
 class BenchmarkRunner(ABC):
     def __init__(self, config: BenchmarkConfig):

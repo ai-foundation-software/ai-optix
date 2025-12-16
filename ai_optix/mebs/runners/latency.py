@@ -1,5 +1,5 @@
 from typing import Callable, Any
-from .base import BenchmarkRunner, BenchmarkConfig
+from .base import BenchmarkRunner
 from ..core.timer import BenchmarkTimer, TimerCollection
 from ..core.stats import MetricAggregator, BenchmarkStats
 

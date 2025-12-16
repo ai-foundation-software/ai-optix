@@ -1,11 +1,8 @@
 import typer
 from rich.console import Console
-from rich.table import Table
 import time
-import subprocess
 import sys
 from rich.markdown import Markdown
-from ai_optix.api.profiler import Profiler
 
 app = typer.Typer(help="ai-optix: AI Performance Profiler")
 console = Console()
@@ -69,7 +66,7 @@ def profile(
     # Save Report
     with open("ai_optix_report.md", "w") as f:
         f.write(report)
-    console.print(f"\n[blue]Report saved to ai_optix_report.md[/blue]")
+    console.print("\n[blue]Report saved to ai_optix_report.md[/blue]")
 
 @app.command()
 def optimize(
@@ -105,7 +102,7 @@ def optimize(
         suggestion = opt.suggest_backend(rows * cols * 8)
         console.print(f"[blue]Suggested Backend: {suggestion}[/blue]")
 
-    console.print(f"[green]Optimization Complete[/green]")
+    console.print("[green]Optimization Complete[/green]")
     console.print(f"Device: {result.device}")
     console.print(f"Optimized: {result.optimized}")
     console.print(f"Rust Execution Time: {result.execution_time_ms:.2f} ms")

@@ -1,10 +1,8 @@
 import time
-from typing import List, Callable, Any, Dict
+from typing import List, Callable, Any
 from ...profiler.gpu import GpuProfiler # This relies on ai_optix.profiler existing
 # Ideally use absolute imports
-from ai_optix.profiler.gpu import GpuProfiler
-from ai_optix.mebs.core.stats import BenchmarkStats
-from ai_optix.profiler.metrics import SystemMetrics
+
 
 class BatchScalingRunner:
     """

@@ -1,5 +1,4 @@
 
-import torch
 from ai_optix.api.optimizer import AIModelOptimizer
 
 def benchmark_accuracy():
@@ -21,7 +20,8 @@ def benchmark_accuracy():
     # If we can't verify the values, we flag this as a critical architecture gap.
     try:
         # Assuming there might be a .data or similar in future
-        val = res.data 
+        # Assuming there might be a .data or similar in future
+        _ = res.data 
     except AttributeError:
         print("[CRITICAL GAP] AI-Optix OptimizerResult does not expose computed data for verification.")
         print("Cannot calculate epsilon error against PyTorch.")

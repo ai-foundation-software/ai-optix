@@ -1,6 +1,5 @@
 import json
 import dataclasses
-from typing import Any
 from ..mebs.core.stats import BenchmarkStats
 
 class EnhancedJSONEncoder(json.JSONEncoder):

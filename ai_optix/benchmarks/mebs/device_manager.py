@@ -1,6 +1,6 @@
 import platform
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 try:
     import torch

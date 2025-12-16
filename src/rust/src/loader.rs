@@ -1,7 +1,7 @@
+use numpy::PyArrayMethods;
 use pyo3::prelude::*;
 use rayon::prelude::*;
 use std::path::PathBuf;
-use numpy::PyArrayMethods;
 
 #[pyclass]
 pub struct DataLoader {
@@ -25,13 +25,13 @@ impl DataLoader {
         // Allocate flat vector
         let data: Vec<f32> = (0..batch_size * 1024)
             .into_par_iter()
-            .map(|_| 1.0) 
+            .map(|_| 1.0)
             .collect();
-        
+
         let array = numpy::PyArray1::from_vec(py, data).reshape((batch_size, 1024))?;
         Ok(array)
     }
-    
+
     fn parallel_process(&self) -> PyResult<String> {
         let num_threads = rayon::current_num_threads();
         Ok(format!("Processed with {} threads", num_threads))

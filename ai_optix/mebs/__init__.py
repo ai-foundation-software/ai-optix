@@ -1,2 +1,2 @@
-from .api import benchmark, BenchmarkConfig, LatencyRunner
-from .core.device import DeviceProbe
+from .api import benchmark as benchmark, BenchmarkConfig as BenchmarkConfig, LatencyRunner as LatencyRunner
+from .core.device import DeviceProbe as DeviceProbe

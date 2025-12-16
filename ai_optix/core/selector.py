@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any
 import math
 from ..benchmarks.mebs.device_manager import DeviceManager
 

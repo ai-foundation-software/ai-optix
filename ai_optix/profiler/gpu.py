@@ -39,7 +39,7 @@ class GpuProfiler:
                 self.handle = pynvml.nvmlDeviceGetHandleByIndex(0)
                 self.baseline_temp = self._get_temp()
                 self.idle_power = self._get_power()
-            except:
+            except Exception:
                 self.handle = None
         
         if not HAS_GPU and not self.simulate:
@@ -60,6 +60,9 @@ class GpuProfiler:
             self._thread.join()
         
         return self._aggregate_metrics()
+# ... (middle of file omitted for brevity in prompt, but tool needs chunks) ...
+# Actually, let's just target the specific blocks. Since I can't skip lines easily with one block for distant lines, I will make 2 calls or use multi_replace.
+# Using multi_replace is safer for non-contiguous edits.
 
     def _poll_loop(self):
         while not self._stop_event.is_set():
@@ -88,36 +91,60 @@ class GpuProfiler:
                 self.power_draws.append(self._get_power())
                 self.temps.append(self._get_temp())
                 self.utils.append(self._get_util())
-                m_used, m_reserved = self._get_memory()
+                m_used, m_reserved = self._get_ram_mb()
                 self.mem_used.append(m_used)
                 self.mem_reserved.append(m_reserved)
                 
             time.sleep(self.poll_interval)
 
     def _get_power(self) -> float:
+        """
+        Get current GPU power usage in watts.
+        """
+        if self.handle is None:
+            return 0.0
+            
         try:
             # nvml returns milliwatts
             return pynvml.nvmlDeviceGetPowerUsage(self.handle) / 1000.0
-        except:
+        except Exception:
             return 0.0
 
     def _get_temp(self) -> float:
+        """
+        Get current GPU temperature in Celsius.
+        """
+        if self.handle is None:
+            return 0.0
+            
         try:
             return pynvml.nvmlDeviceGetTemperature(self.handle, pynvml.NVML_TEMPERATURE_GPU)
-        except:
+        except Exception:
             return 0.0
 
     def _get_util(self) -> float:
-        try:
-            return pynvml.nvmlDeviceGetUtilizationRates(self.handle).gpu
-        except:
+        """
+        Get current GPU utilization %.
+        """
+        if self.handle is None:
             return 0.0
             
-    def _get_memory(self) -> tuple:
+        try:
+            return pynvml.nvmlDeviceGetUtilizationRates(self.handle).gpu
+        except Exception:
+            return 0.0
+            
+    def _get_ram_mb(self) -> tuple[float, float]:
+        """
+        Get (used_mb, total_mb).
+        """
+        if self.handle is None:
+            return (0.0, 0.0)
+            
         try:
             info = pynvml.nvmlDeviceGetMemoryInfo(self.handle)
             return (info.used / 1024**2, info.total / 1024**2) # using total as proxy for reserved in simple case, or just used
-        except:
+        except Exception:
             return (0.0, 0.0)
 
     def _aggregate_metrics(self) -> SystemMetrics:
@@ -183,5 +210,5 @@ class GpuProfiler:
         if HAS_GPU:
             try:
                 pynvml.nvmlShutdown()
-            except:
+            except Exception:
                 pass

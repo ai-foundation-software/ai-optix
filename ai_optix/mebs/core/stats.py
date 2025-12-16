@@ -1,7 +1,7 @@
 import math
 import statistics
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import List, Optional
 # Use string forward reference or import inside if cycle, but usually okay here if structure is clean
 # To avoid circular imports if metrics imports stats (unlikely), we'll use TYPE_CHECKING or just assume it's fine.
 # Actually, let's just use string forward reference in dataclass and import if needed, or import at top.

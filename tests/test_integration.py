@@ -1,4 +1,3 @@
-import pytest
 from ai_optix.api.optimizer import AIModelOptimizer
 from ai_optix.api.profiler import Profiler
 

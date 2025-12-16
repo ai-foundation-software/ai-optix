@@ -1,7 +1,7 @@
 import platform
 import subprocess
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from dataclasses import dataclass
+from typing import Optional
 try:
     import torch
     HAS_TORCH = True

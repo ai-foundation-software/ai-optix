@@ -4,7 +4,7 @@ try:
     HAS_TORCH = True
 except ImportError:
     HAS_TORCH = False
-from typing import Optional, List
+from typing import List
 from contextlib import contextmanager
 
 class BenchmarkTimer:
