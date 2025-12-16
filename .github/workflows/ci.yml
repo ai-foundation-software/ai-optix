@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  OMP_NUM_THREADS: 1
+  ENABLE_GPU: "false"  # Set to "true" to enable CUDA install & GPU Torch
+
+jobs:
+  # 🔒 Security: Prevent running on untrusted forks with high privileges
+  # This section mostly implicitly handled by 'permissions: contents: read' for PRs
+
+  test-hybrid:
+    name: Test Hybrid (Py${{ matrix.python-version }} / ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30  # Increased for potential GPU builds
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-13, windows-2022]
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4.1.1  # 📌 Pin actions for security
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 🦀 Rust Cache to speed up builds
+      - name: Cache Cargo registry
+        uses: actions/cache@v4.0.2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # 🐍 Pip Cache to speed up builds
+      - name: Cache Pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install System Deps (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential libomp-dev
+
+      - name: Install System Deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake libomp
+
+      - name: Install Python Build Tools
+        run: |
+          pip install --upgrade pip
+          pip install pytest
+
+      - name: Install PyTorch
+        if: runner.os == 'Linux'
+        run: |
+          if [ "${{ env.ENABLE_GPU }}" == "true" ]; then
+            echo "⚡ GPU Support Enabled: Installing CUDA & GPU PyTorch..."
+            sudo apt-get install -y nvidia-cuda-toolkit
+            pip install "torch>=2.0.0"
+          else
+            echo "🐢 GPU Disabled: Installing CPU PyTorch for speed..."
+            pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
+          fi
+
+      - name: Install Library & Dependencies
+        run: |
+          pip install .
+        working-directory: .
+
+      - name: Run Tests
+        run: |
+          pytest tests/
