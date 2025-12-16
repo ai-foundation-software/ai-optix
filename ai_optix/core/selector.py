@@ -1,6 +1,6 @@
 from typing import Tuple, Dict, Any, Optional
 import math
-from ..mebs.core.device import DeviceProbe
+from ..benchmarks.mebs.device_manager import DeviceManager
 
 class SmartSelector:
     """
@@ -19,8 +19,9 @@ class SmartSelector:
     GPU_LAUNCH_OVERHEAD_S = 0.00005 # ~50us
 
     def __init__(self, use_gpu_if_available: bool = True):
-        self.device_info = DeviceProbe.get_device_info()
-        self.has_gpu = self.device_info.device_type in ["cuda", "mps"] and use_gpu_if_available
+        self.device_manager = DeviceManager()
+        self.device_info = self.device_manager.info
+        self.has_gpu = self.device_info["device_type"] in ["cuda", "mps"] and use_gpu_if_available
 
     def select_device(self, input_shape: Tuple[int, ...], op_complexity_str: str = "linear") -> str:
         """
@@ -61,7 +62,7 @@ class SmartSelector:
         # If GPU time is significantly less than CPU time, choose GPU.
         # We add a slight bias towards CPU for simplicity/stability unless GPU is 2x faster.
         if gpu_time * 1.5 < cpu_time:
-            return self.device_info.device_type # 'cuda' or 'mps'
+            return self.device_info["device_type"] # 'cuda' or 'mps'
         else:
             return "cpu"
 
