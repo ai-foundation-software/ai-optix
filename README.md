@@ -42,7 +42,7 @@ AI Optix is a research-grade infrastructure tool designed to bridge the gap betw
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/ai-optix.git
+git clone https://github.com/ai-foundation-software/ai-optix.git
 cd ai-optix
 
 # Create a virtual environment
