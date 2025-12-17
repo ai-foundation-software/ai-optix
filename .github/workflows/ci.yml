@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -13,16 +13,14 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   OMP_NUM_THREADS: 1
-  ENABLE_GPU: "false"  # Set to "true" to enable CUDA install & GPU Torch
+  ENABLE_GPU: "false"
 
 jobs:
-  # 🔒 Security: Prevent running on untrusted forks with high privileges
-  # This section mostly implicitly handled by 'permissions: contents: read' for PRs
-
   test-hybrid:
-    name: Test Hybrid (Py${{ matrix.python-version }} / ${{ matrix.os }})
+    name: Test (Py${{ matrix.python-version }} | ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30  # Increased for potential GPU builds
+    timeout-minutes: 30
+
     strategy:
       fail-fast: false
       matrix:
@@ -30,16 +28,25 @@ jobs:
         python-version: ["3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@b4ffde65f4633668828d0b6512f6f4fa7415813d # v4.1.1 (Pinned)
+      # ─────────────────────────────
+      # Checkout
+      # ─────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.1.0 (Pinned)
+      # ─────────────────────────────
+      # Python
+      # ─────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      # 🦀 Rust Cache to speed up builds
-      - name: Cache Cargo registry
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.2 (Pinned)
+      # ─────────────────────────────
+      # Rust Cache (cross-platform safe)
+      # ─────────────────────────────
+      - name: Cache Cargo
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -47,48 +54,73 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # 🐍 Pip Cache to speed up builds
+      # ─────────────────────────────
+      # Pip Cache
+      # ─────────────────────────────
       - name: Cache Pip
-        uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.2 (Pinned)
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install System Deps (Linux)
+      # ─────────────────────────────
+      # System Dependencies
+      # ─────────────────────────────
+      - name: Linux deps
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake build-essential libomp-dev
 
-      - name: Install System Deps (macOS)
+      - name: macOS deps
         if: runner.os == 'macOS'
         run: |
+          brew update
           brew install cmake libomp
 
-      - name: Install Python Build Tools
+      - name: Windows deps
+        if: runner.os == 'Windows'
         run: |
-          pip install --upgrade pip
+          choco install cmake -y
+
+      # ─────────────────────────────
+      # Python Tooling
+      # ─────────────────────────────
+      - name: Install Python build tools
+        run: |
+          python -m pip install --upgrade pip
           pip install pytest
 
-      - name: Install PyTorch
+      # ─────────────────────────────
+      # PyTorch (CPU-only, OS-safe)
+      # ─────────────────────────────
+      - name: Install PyTorch (Linux)
         if: runner.os == 'Linux'
         run: |
-          if [ "${{ env.ENABLE_GPU }}" == "true" ]; then
-            echo "⚡ GPU Support Enabled: Installing CUDA & GPU PyTorch..."
-            sudo apt-get install -y nvidia-cuda-toolkit
-            pip install "torch>=2.0.0"
-          else
-            echo "🐢 GPU Disabled: Installing CPU PyTorch for speed..."
-            pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
-          fi
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-      - name: Install Library & Dependencies
+      - name: Install PyTorch (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          pip install torch
+
+      - name: Install PyTorch (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pip install torch
+
+      # ─────────────────────────────
+      # Install Project
+      # ─────────────────────────────
+      - name: Install library
         run: |
           pip install .
-        working-directory: .
 
-      - name: Run Tests
+      # ─────────────────────────────
+      # Tests
+      # ─────────────────────────────
+      - name: Run tests
         run: |
           pytest tests/
