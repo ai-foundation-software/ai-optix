@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 ai-foundation-software
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import List, Dict, Any
 from .base import BaseDetector, Issue
 

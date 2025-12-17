@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 ai-foundation-software
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 from dataclasses import dataclass
 from typing import Callable, Any

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 ai-foundation-software
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import Tuple, Dict, Any
 import math
 from ..benchmarks.mebs.device_manager import DeviceManager

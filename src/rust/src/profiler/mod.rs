@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 ai-foundation-software
+// SPDX-License-Identifier: Apache-2.0
+
 use pyo3::prelude::*;
 use std::sync::{Arc, Mutex};
 use sysinfo::{CpuRefreshKind, RefreshKind, System};

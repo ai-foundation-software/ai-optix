@@ -53,3 +53,4 @@ ai_optix_report.md
 *.log
 docs/build/
 docs/source/generated/
+test_env/

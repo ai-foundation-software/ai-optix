@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 ai-foundation-software
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 from ai_optix.benchmarks.mebs import BenchmarkRunner, BenchmarkConfig, get_device_manager
