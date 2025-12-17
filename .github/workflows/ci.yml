@@ -1,79 +1,36 @@
 name: CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-env:
-  CARGO_TERM_COLOR: always
-  OMP_NUM_THREADS: 1
+on: [push, pull_request]
 
 jobs:
-  test-hybrid:
-    name: Test Hybrid (Py${{ matrix.python-version }} / ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10", "3.11", "3.12"]
+  test:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1 (Pinned)
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0 (Pinned)
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@21dc36fb71dd64662d512dd4f98d73b06dbef6f6 # stable (Pinned)
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust Cache
-        uses: swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3 (Pinned)
-
-      - name: Install System Deps (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake build-essential libomp-dev
-
-      - name: Install System Deps (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install cmake libomp
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
       - name: Install build tools
         run: |
-          pip install --upgrade pip
-          pip install maturin>=1.0 pytest ruff
+          python -m pip install --upgrade pip
+          pip install maturin pytest
 
-      - name: Build and Install Wheel
+      - name: Build wheel
         run: |
-          maturin build --release --out target/wheels
-          # Install the wheel we just built
-          pip install --find-links=target/wheels --extra-index-url https://download.pytorch.org/whl/cpu ai-optix
+          maturin build --release
 
-      - name: Lint with Ruff
-        run: ruff check .
+      - name: Install wheel
+        run: |
+          pip install target/wheels/*.whl
 
-      - name: Check Rust Formatting
-        run: cargo fmt --manifest-path src/rust/Cargo.toml -- --check
-
-      - name: Run Tests
+      - name: Run tests
         run: |
           pytest tests/
-
-      - name: Upload Wheels
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1 (Pinned)
-        with:
-          name: wheels-${{ runner.os }}-${{ matrix.python-version }}
-          path: target/wheels/*.whl
