@@ -24,7 +24,7 @@ impl MetricBuffer {
     pub fn pop(&self) -> Option<MetricEvent> {
         self.queue.pop()
     }
-    
+
     pub fn drain(&self) -> Vec<MetricEvent> {
         let mut events = Vec::new();
         while let Some(event) = self.queue.pop() {
@@ -32,11 +32,11 @@ impl MetricBuffer {
         }
         events
     }
-    
+
     pub fn len(&self) -> usize {
         self.queue.len()
     }
-    
+
     pub fn is_empty(&self) -> bool {
         self.queue.is_empty()
     }

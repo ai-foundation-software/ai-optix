@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 ai-foundation-software
 // SPDX-License-Identifier: Apache-2.0
 
-use nvml_wrapper::Nvml;
 use crate::profiler::events::{MetricEvent, MetricKind};
+use nvml_wrapper::Nvml;
 
 pub struct GpuMonitor {
     nvml: Option<Nvml>,
@@ -35,23 +35,25 @@ impl GpuMonitor {
 
         // Power
         if let Ok(power_mw) = device.power_usage() {
-             events.push(MetricEvent {
+            events.push(MetricEvent {
                 timestamp_ns,
                 kind: MetricKind::GpuPowerW((power_mw / 1000) as u16),
             });
         }
 
         // Temp
-        if let Ok(temp) = device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu) {
+        if let Ok(temp) =
+            device.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+        {
             events.push(MetricEvent {
                 timestamp_ns,
                 kind: MetricKind::GpuTempC(temp as i16),
             });
         }
-        
+
         // Utilization
         if let Ok(util) = device.utilization_rates() {
-             events.push(MetricEvent {
+            events.push(MetricEvent {
                 timestamp_ns,
                 kind: MetricKind::GpuUtil(util.gpu as u8),
             });

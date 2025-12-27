@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 ai-foundation-software
 // SPDX-License-Identifier: Apache-2.0
 
-use sysinfo::{CpuRefreshKind, MemoryRefreshKind, RefreshKind, System};
 use crate::profiler::events::{MetricEvent, MetricKind};
+use sysinfo::{CpuRefreshKind, MemoryRefreshKind, RefreshKind, System};
 
 pub struct CpuMonitor {
     sys: System,
@@ -22,7 +22,7 @@ impl CpuMonitor {
     pub fn sample(&mut self, session_start: std::time::Instant) -> Vec<MetricEvent> {
         self.sys.refresh_cpu();
         self.sys.refresh_memory();
-        
+
         let now = std::time::Instant::now();
         let timestamp_ns = now.duration_since(session_start).as_nanos() as u64;
 
