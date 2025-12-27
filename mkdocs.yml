@@ -1,0 +1,12 @@
+site_name: AI Optix
+site_description: Intelligent profiling and optimization engine for AI workloads.
+theme:
+  name: readthedocs
+
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - Architecture: ARCHITECTURE.md
+  - MEBS: MEBS.md
+  - Project Audit: PROJECT_AUDIT.md
