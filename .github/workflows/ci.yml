@@ -1,25 +1,25 @@
-name: Linux CI
+name: CI
 
 on:
   push:
     branches: [ "**" ]
   pull_request:
     branches: [ "**" ]
+  schedule:
+    - cron: '0 2 * * *' # Run nightly at 2 AM UTC
   workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
-  # Force PyTorch to use CPU to avoid CUDA initialization errors on standard runners
-  # and ensure we download the lighter CPU-only binaries.
-  PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
 
 jobs:
-  build-and-test:
-    name: Test (Py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+  test:
+    name: ${{ matrix.os }} / Py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
@@ -42,26 +42,38 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: Install System Dependencies
+      - name: Install System Dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake
 
+      # MacOS and Windows runners usually have CMake installed.
+      
       - name: Install Python Dependencies
+        shell: bash
         run: |
           python -m pip install --upgrade pip
-          # Installation order matters: install explicit constraints first
           pip install -r requirements-base.txt
-          pip install -r requirements-cpu.txt
+          
+          # Platform-specific Torch installation
+          if [ "${{ runner.os }}" == "macOS" ]; then
+             # macOS (ARM64) uses standard PyPI wheels
+             pip install torch==2.3.1
+          else
+             # Linux/Windows use CPU-specific wheels from PyTorch index
+             pip install -r requirements-cpu.txt
+          fi
+          
           # Install dev/test dependencies
           pip install pytest pytest-cov ruff maturin
 
       - name: Lint (Ruff)
-        run: |
-          ruff check .
-          # Optional: ruff format --check .
+        if: runner.os == 'Linux' && matrix.python-version == '3.12'
+        run: ruff check .
 
       - name: Lint (Rust)
+        if: runner.os == 'Linux' && matrix.python-version == '3.12'
         working-directory: src/rust
         run: |
           cargo fmt --all -- --check
@@ -69,27 +81,20 @@ jobs:
 
       - name: Build Wheel
         run: |
-          # Build release wheel
           maturin build --release --out dist
 
       - name: Install Wheel
+        shell: bash
         run: |
-          # Install the built wheel
+          # Install the built wheel ensuring cross-platform glob expansion
           pip install dist/*.whl
 
       - name: Run Tests
         run: |
-          # Run pytest. 
           pytest tests/ --cov=ai_optix --cov-report=term
-      
-      - name: Upload Wheel Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-py${{ matrix.python-version }}
-          path: dist/*.whl
 
   docs-check:
-    name: Documentation Build
+    name: Documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,6 +105,4 @@ jobs:
         run: pip install mkdocs mkdocs-material mkdocs-get-deps
       - name: Build Docs
         run: |
-            # Create a simple index if needed or ensure files exist
-            # For CI check we just run build
-            mkdocs build --strict || mkdocs build # Allow warnings for now due to missing links
+            mkdocs build --strict || mkdocs build
