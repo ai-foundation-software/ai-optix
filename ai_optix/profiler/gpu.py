@@ -1,23 +1,27 @@
 # SPDX-FileCopyrightText: 2025 ai-foundation-software
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict
-import threading
 import time
 import statistics
+import random
+import math
+from typing import Dict
+from .._core import ProfilerSession
 from .metrics import SystemMetrics, EnergyMetrics, MemoryMetrics, ThermalMetrics, ComputeMetrics, TimeSeriesData
+import threading
+
 try:
     import pynvml
     HAS_GPU = True
 except ImportError:
+    pynvml = None
     HAS_GPU = False
-
-import random
-import math
 
 class GpuProfiler:
     def __init__(self, poll_interval: float = 0.1, simulate: bool = False):
-        self.handle = None
+        self.session = ProfilerSession()
+        self.simulate = simulate
+        self.start_time = 0.0
         self.poll_interval = poll_interval
         self._stop_event = threading.Event()
         self._thread = None

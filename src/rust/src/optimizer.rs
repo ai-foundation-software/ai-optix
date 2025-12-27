@@ -23,12 +23,17 @@ pub struct Optimizer {
 
 extern "C" {
     fn mat_mul_cpu(a: *const f32, b: *const f32, c: *mut f32, m: i32, n: i32, k: i32);
+    fn init_profiler_cb(addr: usize);
 }
 
 #[pymethods]
 impl Optimizer {
     #[new]
     pub fn new(name: String) -> Self {
+        unsafe {
+            use crate::profiler::ffi::ai_optix_trace_callback;
+            init_profiler_cb(ai_optix_trace_callback as usize);
+        }
         Optimizer { name }
     }
 

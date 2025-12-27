@@ -10,5 +10,6 @@ fn main() {
     // Link OpenMP if on Linux
     if std::env::consts::OS == "linux" {
         println!("cargo:rustc-link-lib=dylib=gomp");
+        println!("cargo:rustc-link-lib=dylib=stdc++");
     }
 }

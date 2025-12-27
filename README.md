@@ -38,19 +38,23 @@ AI Optix is a research-grade infrastructure tool designed to bridge the gap betw
 
 ## ⚡ Quick Start
 
-### Installation
+### Installation (Pip)
+
+We provide an automated setup script that handles:
+- Python 3.11 Virtual Environment creation
+- CPU vs CUDA Runtime detection
+- PyTorch version selection
 
 ```bash
 # Clone the repository
 git clone https://github.com/ai-foundation-software/ai-optix.git
 cd ai-optix
 
-# Create a virtual environment
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+# Run the setup script
+./scripts/setup.sh
 
-# Install usage dependencies and build rust extension
-pip install -e .
+# Activate the environment
+source .venv/bin/activate
 ```
 
 ### Running a Benchmark
