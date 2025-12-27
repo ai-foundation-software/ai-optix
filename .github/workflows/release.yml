@@ -71,4 +71,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
-          # password: ${{ secrets.PYPI_API_TOKEN }} # Use OIDC if available
+          password: ${{ secrets.PYPI_API_TOKEN }} # Use OIDC if available
