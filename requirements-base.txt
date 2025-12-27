@@ -1,0 +1,6 @@
+numpy
+psutil
+typer>=0.9.0
+rich>=13.0.0
+pydantic>=2.0.0
+nvidia-ml-py>=12.535.133; sys_platform == 'linux'

@@ -1,10 +1,21 @@
 #include <vector>
 #include <iostream>
 #include <omp.h>
+#include <cstdint>
 
 extern "C" {
 
+    typedef void (*TraceCallback)(uint32_t, uint32_t);
+    static TraceCallback g_profiler_callback = nullptr;
+
+    void init_profiler_cb(size_t callback_addr) {
+        g_profiler_callback = (TraceCallback)callback_addr;
+        std::cout << "C++ Profiler Initialized with callback at " << callback_addr << std::endl;
+    }
+
     void mat_mul_cpu(const float* a, const float* b, float* c, int M, int N, int K) {
+        if (g_profiler_callback) g_profiler_callback(1, 0); // Start ID 1
+        
         // A is MxK, B is KxN, C is MxN
         
         #pragma omp parallel for collapse(2)
@@ -18,6 +29,8 @@ extern "C" {
                 c[i * N + j] = sum;
             }
         }
+        
+        if (g_profiler_callback) g_profiler_callback(1, 1); // End ID 1
     }
 
 }

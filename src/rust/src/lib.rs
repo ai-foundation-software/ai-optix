@@ -12,7 +12,7 @@ use loader::DataLoader;
 /// Low-level AI optimization core module
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<profiler::SystemProfiler>()?;
+    m.add_class::<profiler::ProfilerSession>()?;
     m.add_class::<optimizer::Optimizer>()?;
     m.add_class::<optimizer::OptimizationResult>()?;
     m.add_class::<DataLoader>()?;
