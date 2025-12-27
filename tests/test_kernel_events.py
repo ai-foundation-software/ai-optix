@@ -1,8 +1,6 @@
 
 import time
-import pytest
 from ai_optix.api.optimizer import AIModelOptimizer
-from ai_optix.api.profiler import Profiler
 
 def test_kernel_events_captured():
     """

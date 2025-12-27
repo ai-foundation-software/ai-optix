@@ -5,9 +5,17 @@ import time
 import statistics
 import random
 import math
-from typing import Dict, List, Tuple
+from typing import Dict
 from .._core import ProfilerSession
 from .metrics import SystemMetrics, EnergyMetrics, MemoryMetrics, ThermalMetrics, ComputeMetrics, TimeSeriesData
+import threading
+
+try:
+    import pynvml
+    HAS_GPU = True
+except ImportError:
+    pynvml = None
+    HAS_GPU = False
 
 class GpuProfiler:
     def __init__(self, poll_interval: float = 0.1, simulate: bool = False):
