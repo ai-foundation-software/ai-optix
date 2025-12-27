@@ -4,7 +4,8 @@
 fn main() {
     let dst = cmake::build("../../");
 
-    println!("cargo:rustc-link-search=native={}/build", dst.display());
+    // CMakeLists.txt installs to ".", so the lib is in the root of dst.
+    println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib=static=kernels_cpu");
 
     // Link OpenMP if on Linux

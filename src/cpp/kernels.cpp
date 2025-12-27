@@ -1,6 +1,7 @@
-#include <vector>
 #include <iostream>
+#if defined(_OPENMP)
 #include <omp.h>
+#endif
 #include <cstdint>
 
 extern "C" {
@@ -18,7 +19,9 @@ extern "C" {
         
         // A is MxK, B is KxN, C is MxN
         
+        #if defined(_OPENMP)
         #pragma omp parallel for collapse(2)
+        #endif
         for (int i = 0; i < M; ++i) {
             for (int j = 0; j < N; ++j) {
                 float sum = 0.0f;

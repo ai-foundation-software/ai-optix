@@ -33,6 +33,7 @@ build-backend = "maturin"
 features = ["pyo3/extension-module"]
 module-name = "ai_optix._core"
 manifest-path = "src/rust/Cargo.toml"
+include = ["CMakeLists.txt", "src/cpp/**/*", "LICENSE", "NOTICE"]
 
 [project.optional-dependencies]
 dev = [
