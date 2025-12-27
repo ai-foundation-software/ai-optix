@@ -11,10 +11,7 @@ pub struct GpuMonitor {
 
 impl GpuMonitor {
     pub fn new(device_idx: u32) -> Self {
-        let nvml = match Nvml::init() {
-            Ok(n) => Some(n),
-            Err(_) => None, // Fallback if no GPU
-        };
+        let nvml = Nvml::init().ok();
         Self { nvml, device_idx }
     }
 
