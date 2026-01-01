@@ -1,6 +1,6 @@
 [project]
 name = "ai-optix"
-version = "0.1.0"
+version = "0.2.0"
 description = "High-performance AI optimization framework"
 authors = [{name = "Vipin", email = "ai.foundation.software@gmail.com"}]
 readme = "README.md"
