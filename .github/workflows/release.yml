@@ -18,6 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up multiple Python versions
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.9
+            3.10
+            3.11
+            3.12
+            3.13
+      
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       
@@ -25,7 +35,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: build
-          args: --release --out dist --find-interpreter
+          args: --release --out dist --interpreter 3.9 3.10 3.11 3.12 3.13
           manylinux: auto
       
       - name: Upload wheels
@@ -71,4 +81,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
-          password: ${{ secrets.PYPI_API_TOKEN }} # Use OIDC if available
+
