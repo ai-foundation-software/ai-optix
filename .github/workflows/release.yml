@@ -84,7 +84,6 @@ jobs:
     name: Publish to PyPI
     needs: [build_wheels_linux, build_wheels_other, build_sdist]
     runs-on: ubuntu-latest
-    environment: release
     permissions:
       id-token: write
     steps:
