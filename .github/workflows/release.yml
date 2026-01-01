@@ -84,6 +84,9 @@ jobs:
     name: Publish to PyPI
     needs: [build_wheels_linux, build_wheels_other, build_sdist]
     runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://pypi.org/p/ai-optix
     permissions:
       id-token: write
     steps:
