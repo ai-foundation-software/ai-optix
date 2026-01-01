@@ -4,11 +4,6 @@ version = "0.1.0"
 description = "High-performance AI optimization framework"
 authors = [{name = "Vipin", email = "ai.foundation.software@gmail.com"}]
 readme = "README.md"
-[project.urls]
-Homepage = "https://github.com/Legend-Vipin/ai-optix"
-Source = "https://github.com/Legend-Vipin/ai-optix"
-Issues = "https://github.com/Legend-Vipin/ai-optix/issues"
-
 license = {text = "Apache-2.0"}
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
@@ -29,6 +24,11 @@ dependencies = [
     "nvidia-ml-py>=12.535.133; sys_platform == 'linux'",
     "numpy>=1.21.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Legend-Vipin/ai-optix"
+Source = "https://github.com/Legend-Vipin/ai-optix"
+Issues = "https://github.com/Legend-Vipin/ai-optix/issues"
 
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
