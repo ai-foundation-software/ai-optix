@@ -42,8 +42,19 @@ class ComputeMetrics:
     efficiency_pct: float = 0.0
 
 @dataclass
+class KernelMetrics:
+    kernel_id: str
+    count: int
+    total_time_ns: int
+    min_time_ns: int
+    max_time_ns: int
+    avg_time_ns: float
+    # v0.7: will add specific bottleneck analysis here
+
+@dataclass
 class SystemMetrics:
     energy: EnergyMetrics
     memory: MemoryMetrics
     thermal: ThermalMetrics
     compute: ComputeMetrics
+    kernel_metrics: List[KernelMetrics] = None

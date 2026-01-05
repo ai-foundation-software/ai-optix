@@ -2,6 +2,7 @@ site_name: AI Optix
 site_description: Intelligent profiling and optimization engine for AI workloads.
 theme:
   name: readthedocs
+  logo: assets/logo.svg
 
 docs_dir: docs
 

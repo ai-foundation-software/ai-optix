@@ -7,7 +7,7 @@ import random
 import math
 from typing import Dict
 from .._core import ProfilerSession
-from .metrics import SystemMetrics, EnergyMetrics, MemoryMetrics, ThermalMetrics, ComputeMetrics, TimeSeriesData
+from .metrics import SystemMetrics, EnergyMetrics, MemoryMetrics, ThermalMetrics, ComputeMetrics, TimeSeriesData, KernelMetrics
 import threading
 
 try:
@@ -39,6 +39,10 @@ class GpuProfiler:
         
         self.baseline_temp = 30.0 if self.simulate else 0.0
         self.idle_power = 10.0 if self.simulate else 0.0
+        
+        # Kernel tracking
+        self.kernel_stats: Dict[str, Dict] = {} # id -> {count, user_total_ns, min, max}
+        self.active_kernels: Dict[str, int] = {} # id -> start_timestamp
 
         if HAS_GPU:
             try:
@@ -59,12 +63,14 @@ class GpuProfiler:
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._poll_loop)
         self.start_time = time.time()
+        self.session.start()
         self._thread.start()
 
     def stop(self) -> SystemMetrics:
         if (self.handle or self.simulate) and self._thread:
             self._stop_event.set()
             self._thread.join()
+            self.session.stop()
         
         return self._aggregate_metrics()
 # ... (middle of file omitted for brevity in prompt, but tool needs chunks) ...
@@ -103,6 +109,26 @@ class GpuProfiler:
                 self.mem_reserved.append(m_reserved)
                 
             time.sleep(self.poll_interval)
+            
+            # Poll Rust Profiler (Kernel Events)
+            events = self.session.poll() # _py arg handled by pyo3
+            for (ts, kind, val) in events:
+                if kind.startswith("kernel_start:"):
+                    kid = kind.split(":", 1)[1]
+                    self.active_kernels[kid] = int(ts) # Store start time
+                elif kind.startswith("kernel_end:"):
+                    kid = kind.split(":", 1)[1]
+                    start_ts = self.active_kernels.pop(kid, None)
+                    if start_ts is not None:
+                        duration = int(ts) - start_ts
+                        if kid not in self.kernel_stats:
+                            self.kernel_stats[kid] = {"count": 0, "total": 0, "min": duration, "max": duration}
+                        
+                        s = self.kernel_stats[kid]
+                        s["count"] += 1
+                        s["total"] += duration
+                        s["min"] = min(s["min"], duration)
+                        s["max"] = max(s["max"], duration)
 
     def _get_power(self) -> float:
         """
@@ -197,7 +223,18 @@ class GpuProfiler:
             efficiency_pct=0.0
         )
         
-        return SystemMetrics(energy, mem, therm, comp)
+        k_metrics = []
+        for kid, s in self.kernel_stats.items():
+            k_metrics.append(KernelMetrics(
+                kernel_id=kid,
+                count=s["count"],
+                total_time_ns=s["total"],
+                min_time_ns=s["min"],
+                max_time_ns=s["max"],
+                avg_time_ns=s["total"] / s["count"] if s["count"] > 0 else 0.0
+            ))
+        
+        return SystemMetrics(energy, mem, therm, comp, k_metrics)
 
     def _empty_metrics(self) -> SystemMetrics:
         # Return empty metrics if no data
@@ -206,12 +243,13 @@ class GpuProfiler:
             EnergyMetrics(0,0,0,0,0,ts),
             MemoryMetrics(0,0,0,ts),
             ThermalMetrics(0,0,0,False,ts),
-            ComputeMetrics(0,ts,0.0,0.0,0.0)
+            ComputeMetrics(0,ts,0.0,0.0,0.0),
+            []
         )
 
     def snapshot(self) -> Dict[str, float]:
         # Keep legacy method for now if needed, or redirect
-        return {"gpu_util": self._get_util(), "gpu_mem_mb": self._get_memory()[0]}
+        return {"gpu_util": self._get_util(), "gpu_mem_mb": self._get_ram_mb()[0]}
     
     def shutdown(self):
         if HAS_GPU:

@@ -1,4 +1,8 @@
 # AI Optix
+<h1 align="center">
+<img src="docs/assets/logo.svg" width="300">
+</h1><br>
+<!-- ![AI Optix Logo](docs/assets/logo.svg) -->
 
 **Intelligent profiling and optimization engine for AI workloads.**
 
@@ -90,9 +94,8 @@ AI Optix adheres to strict principles:
 
 - [x] Initial Hybrid Architecture (Python/Rust/C++)
 - [x] Model Efficiency Benchmark Suite (MEBS)
-- [ ] Automated Kernel Tuning
+- [x] Automated Kernel Tuning (Observation Layer)
 - [ ] Distributed Training Profiling
-- [ ] Web-based Visualization Dashboard
 
 ## 🤝 Contributing
 

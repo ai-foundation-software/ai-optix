@@ -6,7 +6,8 @@
 
 extern "C" {
 
-    typedef void (*TraceCallback)(uint32_t, uint32_t);
+    // ID, Payload, Type (0=Start, 1=End)
+    typedef void (*TraceCallback)(uint64_t, uint64_t, uint32_t);
     static TraceCallback g_profiler_callback = nullptr;
 
     void init_profiler_cb(size_t callback_addr) {
@@ -14,8 +15,27 @@ extern "C" {
         std::cout << "C++ Profiler Initialized with callback at " << callback_addr << std::endl;
     }
 
+    // Simple FNV-1a hash for compile-time constants (or runtime strings)
+    constexpr uint64_t fnv1a_hash(const char* str, size_t n) {
+        uint64_t hash = 14695981039346656037ULL;
+        for (size_t i = 0; i < n; ++i) {
+            hash ^= (uint64_t)str[i];
+            hash *= 1099511628211ULL;
+        }
+        return hash;
+    }
+
     void mat_mul_cpu(const float* a, const float* b, float* c, int M, int N, int K) {
-        if (g_profiler_callback) g_profiler_callback(1, 0); // Start ID 1
+        static const uint64_t KERNEL_ID = fnv1a_hash("mat_mul_cpu", 11);
+        
+        // Payload: Pack some "grid" info. For CPU, let's say M*N is the grid size.
+        // We act like block_size is 1 for now.
+        // Payload = (block_size << 32) | (grid_size & 0xFFFFFFFF)
+        uint64_t grid_size = (uint64_t)(M * N);
+        uint64_t block_size = 1; 
+        uint64_t payload = (block_size << 32) | (grid_size & 0xFFFFFFFF);
+
+        if (g_profiler_callback) g_profiler_callback(KERNEL_ID, payload, 0); // Start
         
         // A is MxK, B is KxN, C is MxN
         
@@ -33,7 +53,7 @@ extern "C" {
             }
         }
         
-        if (g_profiler_callback) g_profiler_callback(1, 1); // End ID 1
+        if (g_profiler_callback) g_profiler_callback(KERNEL_ID, payload, 1); // End
     }
 
 }

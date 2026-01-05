@@ -9,8 +9,8 @@ pub enum MetricKind {
     GpuPowerW(u16),
     GpuTempC(i16),
     GpuUtil(u8),
-    KernelStart(u32), // ID
-    KernelEnd(u32),
+    KernelStart { id: u64, payload: u64 },
+    KernelEnd { id: u64, payload: u64 },
 }
 
 #[derive(Clone, Copy, Debug)]

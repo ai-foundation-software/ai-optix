@@ -31,9 +31,9 @@ def test_kernel_events_captured():
     events = session.poll()
     
     # 4. Verify Events
-    # We expect kernel_start (kind="kernel_start") and kernel_end
-    kernel_starts = [e for e in events if e[1] == "kernel_start"]
-    kernel_ends = [e for e in events if e[1] == "kernel_end"]
+    # We expect kernel_start (kind="kernel_start:ID") and kernel_end
+    kernel_starts = [e for e in events if e[1].startswith("kernel_start")]
+    kernel_ends = [e for e in events if e[1].startswith("kernel_end")]
     
     assert len(kernel_starts) > 0, "No C++ kernel start events captured!"
     assert len(kernel_ends) > 0, "No C++ kernel end events captured!"

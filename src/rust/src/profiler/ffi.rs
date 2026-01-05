@@ -6,7 +6,7 @@ use crate::profiler::SESSION;
 use std::sync::atomic::Ordering;
 
 #[no_mangle]
-pub extern "C" fn ai_optix_trace_callback(id: u32, event_type: u32) {
+pub extern "C" fn ai_optix_trace_callback(id: u64, payload: u64, event_type: u32) {
     // 0 = Start, 1 = End
     let session = SESSION.lock();
     // Quick check if configured
@@ -18,9 +18,9 @@ pub extern "C" fn ai_optix_trace_callback(id: u32, event_type: u32) {
         let now = std::time::Instant::now();
         let ts = now.duration_since(start).as_nanos() as u64;
         let kind = if event_type == 0 {
-            MetricKind::KernelStart(id)
+            MetricKind::KernelStart { id, payload }
         } else {
-            MetricKind::KernelEnd(id)
+            MetricKind::KernelEnd { id, payload }
         };
 
         // Non-blocking push attempt

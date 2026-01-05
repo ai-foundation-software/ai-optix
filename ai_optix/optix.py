@@ -27,6 +27,8 @@ class AutoOptimizer:
         monitoring_active = True
         self._monkeypatch_dataloader()
         
+        self.gpu_profiler.start()
+        
         self.monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self.monitor_thread.start()
         print("[AI-Optix] Auto-Profiler Started.")
@@ -36,8 +38,12 @@ class AutoOptimizer:
         monitoring_active = False
         if self.monitor_thread:
             self.monitor_thread.join(timeout=2.0)
+        
+        # Get final full metrics including kernels
+        gpu_full_metrics = self.gpu_profiler.stop() # This calls session.stop()
         self.gpu_profiler.shutdown()
-        print("[AI-Optix] Profiling Stopped.")
+        
+        print(f"[AI-Optix] Profiling Stopped. Captured {len(gpu_full_metrics.kernel_metrics) if gpu_full_metrics.kernel_metrics else 0} kernels.")
         return metrics_log
 
     def _monitor_loop(self):

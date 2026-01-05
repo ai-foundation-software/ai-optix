@@ -91,15 +91,15 @@ impl ProfilerSession {
             .into_iter()
             .map(|e| {
                 let (kind_str, val) = match e.kind {
-                    events::MetricKind::CpuUsageVcore(v) => ("cpu_vcore", v as f64 / 100.0),
-                    events::MetricKind::MemoryUsageMb(v) => ("mem_mb", v as f64),
-                    events::MetricKind::GpuPowerW(v) => ("gpu_power_w", v as f64),
-                    events::MetricKind::GpuTempC(v) => ("gpu_temp_c", v as f64),
-                    events::MetricKind::GpuUtil(v) => ("gpu_util", v as f64),
-                    events::MetricKind::KernelStart(id) => ("kernel_start", id as f64),
-                    events::MetricKind::KernelEnd(id) => ("kernel_end", id as f64),
+                    events::MetricKind::CpuUsageVcore(v) => ("cpu_vcore".to_string(), v as f64 / 100.0),
+                    events::MetricKind::MemoryUsageMb(v) => ("mem_mb".to_string(), v as f64),
+                    events::MetricKind::GpuPowerW(v) => ("gpu_power_w".to_string(), v as f64),
+                    events::MetricKind::GpuTempC(v) => ("gpu_temp_c".to_string(), v as f64),
+                    events::MetricKind::GpuUtil(v) => ("gpu_util".to_string(), v as f64),
+                    events::MetricKind::KernelStart { id, payload } => (format!("kernel_start:{}", id), payload as f64),
+                    events::MetricKind::KernelEnd { id, payload } => (format!("kernel_end:{}", id), payload as f64),
                 };
-                (e.timestamp_ns, kind_str.to_string(), val)
+                (e.timestamp_ns, kind_str, val)
             })
             .collect()
     }
