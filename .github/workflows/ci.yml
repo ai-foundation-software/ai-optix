@@ -51,21 +51,22 @@ jobs:
       
       - name: Install Python Dependencies
         shell: bash
-          run: |
-           uv upgrade
-           uv install -r requirements-base.txt
+        run: |
+          uv upgrade
+          uv install -r requirements-base.txt
 
-           # Platform-specific Torch installation
-           if [ "${{ runner.os }}" == "macOS" ]; then
-             # macOS (ARM64) uses standard PyPI wheels
-             uv install torch==2.3.1
-           else
-             # Linux/Windows use CPU-specific wheels from PyTorch index
-             uv install -r requirements-cpu.txt
-           fi
+          # Platform-specific Torch installation
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            # macOS (ARM64) uses standard PyPI wheels
+            uv install torch==2.3.1
+          else
+            # Linux/Windows use CPU-specific wheels from PyTorch index
+            uv install -r requirements-cpu.txt
+          fi
 
-           # Install dev/test dependencies
-           uv install pytest pytest-cov ruff maturin
+          # Install dev/test dependencies
+          uv install pytest pytest-cov ruff maturin
+
 
       - name: Lint (Ruff)
         if: runner.os == 'Linux' && matrix.python-version == '3.12'
