@@ -7,7 +7,7 @@ This guide covers the setup process for **AI Optix** on Linux, macOS, and Window
 - **Python**: 3.9 or higher
 - **Rust Toolchain**: Stable (1.70+)
 - **C++ Compiler**: GCC 9+, Clang 10+, or MSVC 2019+
-- **Builder**: `maturin` (installed via pip)
+- **Builder**: `maturin` (installable via `uv` or pip)
 
 ## Prerequisites
 
@@ -61,14 +61,37 @@ python -m venv .venv
 
 ### 3. Install Dependencies
 ```bash
-pip install --upgrade pip
-pip install maturin patchelf
-# Install project in editable mode (builds Rust extension automatically)
-pip install -e .
+uv upgrade
+uv install maturin patchelf
+This repository provides two convenient install flows via `scripts/setup.sh`:
+
+- CPU-only (recommended when no GPU or you want a lightweight setup):
+
+```bash
+# Create and activate virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Run setup in CPU-only mode (or let script auto-detect)
+./scripts/setup.sh cpu
+```
+
+- GPU-enabled (installs CUDA extras; requires NVIDIA GPU):
+
+```bash
+# Create and activate virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Run setup in GPU mode (will attempt system CUDA install on Debian/Ubuntu)
+./scripts/setup.sh gpu
+```
+
+The `scripts/setup.sh` will attempt to install the editable package with CUDA extras via `uv install -e ".[cuda]"`. If that fails it falls back to the `requirements-cuda.txt` path.
 ```
 
 ### 4. Build Options
-The `pip install -e .` command above automatically handles the build. 
+The `uv install -e .` command above automatically handles the build. 
 However, for manual control or debugging of the Rust extension:
 
 **Debug Build (Fast):**
@@ -84,8 +107,8 @@ maturin develop --release
 
 ## GPU Support
 
-AI Optix attempts to auto-detect CUDA or MPS.
-- **NVIDIA GPU**: Ensure `nvcc` is in your PATH.
+AI Optix attempts to auto-detect available GPU backends. The project now prefers the Triton Inference Server client for GPU-related integrations.
+- **Triton**: Install the Triton Python client (`tritonclient[all]`) for advanced inference integration.
 - **Apple Silicon**: No extra steps required (uses `MPS` backend in PyTorch).
 
 ## Troubleshooting

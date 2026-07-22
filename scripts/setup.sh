@@ -14,16 +14,38 @@ echo "Using Python: $($PYTHON_BIN --version)"
 $PYTHON_BIN -m venv .venv
 source .venv/bin/activate
 
-pip install --upgrade pip setuptools wheel
-pip install -r requirements-base.txt
-
-if command -v nvidia-smi &>/dev/null; then
-  echo "✅ NVIDIA GPU detected → installing CUDA PyTorch"
-  pip install -r requirements-cuda.txt
-else
-  echo "ℹ️ No GPU detected → installing CPU PyTorch"
-  pip install -r requirements-cpu.txt
+uv upgrade
+uv install --upgrade setuptools wheel
+uv install -r requirements-base.txt
+MODE="$1"
+if [ "$MODE" = "cpu" ] || [ "$MODE" = "gpu" ]; then
+  echo "Install mode override: $MODE"
 fi
 
-# Install the package in editable mode
-pip install -e .
+# Determine mode: explicit arg, otherwise auto-detect
+if [ -z "$MODE" ]; then
+  if command -v nvidia-smi &>/dev/null; then
+    MODE="gpu"
+  else
+    MODE="cpu"
+  fi
+fi
+
+if [ "$MODE" = "gpu" ]; then
+  echo "✅ NVIDIA GPU path selected → installing CUDA extras"
+  if command -v apt-get &>/dev/null; then
+    echo "Attempting to install system CUDA toolkit via apt-get (optional)"
+    sudo apt-get update && sudo apt-get install -y nvidia-cuda-toolkit || \
+      echo "Warning: failed to install nvidia-cuda-toolkit via apt-get; continuing"
+  fi
+  # Prefer installing package extras which include CUDA-specific deps.
+  uv install -e ".[cuda]" || uv install -r requirements-cuda.txt
+  echo "Installed CUDA extras (or fell back to requirements-cuda.txt)"
+else
+  echo "ℹ️ CPU-only path selected → installing CPU PyTorch"
+  uv install -r requirements-cpu.txt
+  # Install editable package for CPU mode
+  uv install -e .
+fi
+
+echo "Setup complete. Activate the venv with: source .venv/bin/activate"

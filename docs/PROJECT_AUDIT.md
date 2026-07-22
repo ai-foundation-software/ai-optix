@@ -58,9 +58,9 @@ jobs:
         with:
           python-version: '3.10'
       - name: Build
-        run: pip install maturin && maturin develop
+        run: uv install maturin && maturin develop
       - name: Test
-        run: pip install pytest && pytest
+        run: uv install pytest && pytest
 ```
 
 ## 6. Conclusion

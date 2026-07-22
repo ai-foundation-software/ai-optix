@@ -16,14 +16,14 @@ use buffer::MetricBuffer;
 
 const BUFFER_CAPACITY: usize = 100_000;
 
-struct SessionState {
+pub(crate) struct SessionState {
     buffer: Arc<MetricBuffer>,
     is_running: Arc<AtomicBool>,
     start_time: Option<std::time::Instant>,
 }
 
 lazy_static! {
-    static ref SESSION: Mutex<SessionState> = Mutex::new(SessionState {
+    pub(crate) static ref SESSION: Mutex<SessionState> = Mutex::new(SessionState {
         buffer: Arc::new(MetricBuffer::new(BUFFER_CAPACITY)),
         is_running: Arc::new(AtomicBool::new(false)),
         start_time: None,

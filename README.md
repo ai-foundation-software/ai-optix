@@ -42,7 +42,7 @@ AI Optix is a research-grade infrastructure tool designed to bridge the gap betw
 
 ## ⚡ Quick Start
 
-### Installation (Pip)
+### Installation (uv)
 
 We provide an automated setup script that handles:
 - Python 3.11 Virtual Environment creation

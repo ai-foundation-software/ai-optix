@@ -2,13 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::profiler::events::{MetricEvent, MetricKind};
+
+#[cfg(feature = "nvml")]
 use nvml_wrapper::Nvml;
 
+#[cfg(feature = "nvml")]
 pub struct GpuMonitor {
     nvml: Option<Nvml>,
     device_idx: u32,
 }
 
+#[cfg(feature = "nvml")]
 impl GpuMonitor {
     pub fn new(device_idx: u32) -> Self {
         let nvml = Nvml::init().ok();
@@ -57,5 +61,22 @@ impl GpuMonitor {
         }
 
         events
+    }
+}
+
+#[cfg(not(feature = "nvml"))]
+pub struct GpuMonitor {
+    device_idx: u32,
+}
+
+#[cfg(not(feature = "nvml"))]
+impl GpuMonitor {
+    pub fn new(device_idx: u32) -> Self {
+        Self { device_idx }
+    }
+
+    pub fn sample(&mut self, _session_start: std::time::Instant) -> Vec<MetricEvent> {
+        // NVML not enabled; return no GPU metrics.
+        Vec::new()
     }
 }
