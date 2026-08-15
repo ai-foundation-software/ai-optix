@@ -32,8 +32,6 @@ jobs:
 
       - name: Set up Rust Cache
         uses: swatinem/rust-cache@v2
-        with:
-           workspaces: src/rust
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -45,32 +43,22 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install System Dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake
-
-      # MacOS and Windows runners usually have CMake installed.
-      
       - name: Install Python Dependencies
         shell: bash
         run: |
-          uv upgrade
-          uv install -r requirements-base.txt
+          uv pip install --system -r requirements-base.txt
 
           # Platform-specific Torch installation
           if [ "${{ runner.os }}" == "macOS" ]; then
             # macOS (ARM64) uses standard PyPI wheels
-            uv install torch==2.3.1
+            uv pip install --system torch==2.3.1
           else
             # Linux/Windows use CPU-specific wheels from PyTorch index
-            uv install -r requirements-cpu.txt
+            uv pip install --system -r requirements-cpu.txt
           fi
 
           # Install dev/test dependencies
-          uv install pytest pytest-cov ruff maturin
-
+          uv pip install --system pytest pytest-cov ruff maturin
 
       - name: Lint (Ruff)
         if: runner.os == 'Linux' && matrix.python-version == '3.12'
@@ -78,7 +66,6 @@ jobs:
 
       - name: Lint (Rust)
         if: runner.os == 'Linux' && matrix.python-version == '3.12'
-        working-directory: src/rust
         run: |
           cargo fmt --all -- --check
           cargo clippy -- -D warnings
@@ -90,8 +77,7 @@ jobs:
       - name: Install Wheel
         shell: bash
         run: |
-          # Install the built wheel ensuring cross-platform glob expansion
-          uv install dist/*.whl
+          uv pip install --system dist/*.whl
 
       - name: Run Tests
         run: |
@@ -109,7 +95,7 @@ jobs:
         with:
           enable-cache: true
       - name: Install MkDocs
-        run: uv install mkdocs mkdocs-material mkdocs-get-deps
+        run: uv pip install --system mkdocs mkdocs-material mkdocs-get-deps
       - name: Build Docs
         run: |
-            mkdocs build --strict || mkdocs build
+          mkdocs build --strict || mkdocs build
