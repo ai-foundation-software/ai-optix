@@ -39,7 +39,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'uv'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - name: Install System Dependencies (Linux)
         if: runner.os == 'Linux'
@@ -101,6 +105,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Install MkDocs
         run: uv install mkdocs mkdocs-material mkdocs-get-deps
       - name: Build Docs
